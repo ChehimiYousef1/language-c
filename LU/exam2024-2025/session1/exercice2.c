@@ -20,6 +20,35 @@ void stokerLaMatrice(int **matrice2D, int rows, int columns) {
     fclose(f);
 }
 
+//found the max and store it on the file
+//and to get the position
+void foundMaxOfMatrix(int **matrice2d, int rows, int columns) {
+    FILE *f = fopen("mat.dat", "wb");
+    if (f == NULL) {
+        printf("Cannot open file!\n");
+        return;
+    }
+
+    int max = matrice2d[0][0];
+    int maxRow = 0, maxCol = 0;
+
+    for (int i = 0; i < rows; i++) {
+        for (int j = 0; j < columns; j++) {
+            if (matrice2d[i][j] > max) {
+                max = matrice2d[i][j];
+                maxRow = i;
+                maxCol = j;
+            }
+        }
+    }
+
+    // Store position and max value
+    fwrite(&maxRow, sizeof(int), 1, f);
+    fwrite(&maxCol, sizeof(int), 1, f);
+    fwrite(&max, sizeof(int), 1, f);
+
+    fclose(f);
+}
 int main() {
     int rows,colunms;
     printf("Enter the number of rows you want it : ");
@@ -39,12 +68,3 @@ int main() {
             matrix[i][j] = num++;
         }
     }
-    //stock the matrix on the file
-    stokerLaMatrice(matrix,rows,colunms);
-    //free the memory of matrix
-    for(int i = 0;i < rows;i++){
-        free(matrix[i]);
-    }
-    free(matrix);
-    return 0;
-}
