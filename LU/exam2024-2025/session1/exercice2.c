@@ -49,22 +49,64 @@ void foundMaxOfMatrix(int **matrice2d, int rows, int columns) {
 
     fclose(f);
 }
-int main() {
-    int rows,colunms;
-    printf("Enter the number of rows you want it : ");
-    scanf("%d \n",&rows);
-    printf("Enter the number of colunms you want it : ");
-    scanf("%d \n",&colunms);
-    //releated to define the matrix
-    //dynamic allocation of the matrix
-    int ** matrix = malloc(rows*(sizeof(int*)));
-    for(int i = 0;i < rows;i++){
-        matrix[i] = malloc(colunms * sizeof(int*));
+void updateMatrixValueInFile(const char *filename, int rows, int cols, int targetRow, int targetCol, int newValue) {
+    FILE *f = fopen(filename, "rb+"); // open for read and write (binary)
+    if (f == NULL) {
+        printf("Cannot open file!\n");
+        return;
     }
-    //get adding the value of the matrix
+
+    // Calculate offset in bytes
+    int index = targetRow * cols + targetCol;
+    long offset = index * sizeof(int);
+
+    // Seek to the position
+    fseek(f, offset, SEEK_SET);
+
+    // Write the new value at that position
+    fwrite(&newValue, sizeof(int), 1, f);
+
+    fclose(f);
+}
+
+int main() {
+    int rows, columns;
+
+    // Prompt for matrix size
+    printf("Enter the number of rows: ");
+    scanf("%d", &rows);  // ❌ Removed newline (\n), which causes scanf to wait for Enter
+
+    printf("Enter the number of columns: ");
+    scanf("%d", &columns);
+
+    // Dynamic allocation of 2D matrix
+    int **matrix = malloc(rows * sizeof(int *));
+    for (int i = 0; i < rows; i++) {
+        matrix[i] = malloc(columns * sizeof(int));
+    }
+
+    // Fill the matrix with incrementing values
     int num = 1;
-    for(int i = 0;i < rows;i++){
-        for(int j = 0;j < colunms;j++){
+    for (int i = 0; i < rows; i++) {
+        for (int j = 0; j < columns; j++) {
             matrix[i][j] = num++;
         }
     }
+
+    // Save the matrix to file
+    stokerLaMatrice(matrix, rows, columns);
+
+    // Find and store max value from matrix to file (separate file)
+    foundMaxOfMatrix(matrix, rows, columns);
+
+    // Optional: update any matrix value in file (example: update [1][1] to 999)
+     updateMatrixValueInFile("mat.dat", rows, columns, 1, 1, 999);
+
+    // Free the dynamically allocated memory
+    for (int i = 0; i < rows; i++) {
+        free(matrix[i]);
+    }
+    free(matrix);
+
+    return 0;
+}
